@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Find and delete pods with names matching the pattern *PR+[0-9]
-pods=$(oc get pods --selector='app=*PR+[0-9]' -o jsonpath='{.items[*].metadata.name}')
+# Find and delete pods with names matching the pattern -PR+[0-9]-
+pods=$(oc get pods --selector='app=~*-PR[0-9]+-*' -o jsonpath='{.items[*].metadata.name}')
 
 if [ -z "$pods" ]; then
     echo "No pods found matching the pattern."
