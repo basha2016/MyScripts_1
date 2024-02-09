@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Find and delete pods with names matching the pattern *PR+[0-9]
+pods=$(oc get pods --selector='app=*PR+[0-9]' -o jsonpath='{.items[*].metadata.name}')
+
+if [ -z "$pods" ]; then
+    echo "No pods found matching the pattern."
+else
+    echo "Deleting pods matching the pattern..."
+    oc delete pod $pods
+fi
+
+# Find and delete routes associated with the deleted pods
+if [ -n "$pods" ]; then
+    echo "Deleting routes associated with the deleted pods..."
+    for pod in $pods; do
+        routes=$(oc get routes --selector="app=$pod" -o jsonpath='{.items[*].metadata.name}')
+        if [ -n "$routes" ]; then
+            oc delete route $routes
+        fi
+    done
+fi
