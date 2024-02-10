@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Define the regular expression pattern
+regex="-pr(12|15|124|128|1)"
+
+# Define the list of namespaces
+namespaces=("namespace1" "namespace2" "namespace3")
+
+# Loop through each namespace
+for namespace in "${namespaces[@]}"; do
+    echo "Namespace: $namespace"
+
+    # Get the pod names matching the regular expression
+    pod_names=$(oc get pods -n "$namespace" --selector="app=~.*${regex}.*" -o jsonpath='{.items[*].metadata.name}')
+
+    # Loop through each pod name
+    for pod_name in $pod_names; do
+        echo "Pod: $pod_name"
+
+        # Get the routes associated with the pod
+        route_names=$(oc get routes -n "$namespace" --selector="app=$pod_name" -o jsonpath='{.items[*].metadata.name}')
+
+        # Output the routes associated with the pod
+        echo "Routes associated with pod '$pod_name':"
+        echo "$route_names"
+
+        # Delete the routes associated with the pod
+        if [ -n "$route_names" ]; then
+            oc delete route -n "$namespace" $route_names
+            echo "Routes deleted."
+        else
+            echo "No routes found to delete."
+        fi
+
+        # Delete the pod
+        oc delete pod -n "$namespace" "$pod_name"
+        echo "Pod deleted."
+    done
+done
