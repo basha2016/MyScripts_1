@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# Get a list of all pod names
+pod_names=$(kubectl get pods -o=jsonpath='{.items[*].metadata.name}')
+
+# Loop through each pod name
+for pod_name in $pod_names; do
+    # Get the route names associated with the pod
+    route_names=$(kubectl get routes --selector="app=$pod_name" -o jsonpath='{.items[*].metadata.name}')
+    
+    # Output the pod name and corresponding route names
+    echo "Routes associated with pod $pod_name:"
+    echo "$route_names"
+done
