@@ -4,11 +4,11 @@
 pod_names=$(kubectl get pods -o=jsonpath='{.items[*].metadata.name}')
 
 # Define the regular expression pattern
-regex=".*-PR\d{3}-.*"
+regex=".*-PR.*"
 
 # Loop through each pod name and check if it contains the regular expression
 for pod_name in $pod_names; do
     if [[ "$pod_name" =~ $regex ]]; then
-        echo "Pod name '$pod_name' contains the regular expression."
+        echo "Pod name '$pod_name' contains the substring '-PR'."
     fi
 done
